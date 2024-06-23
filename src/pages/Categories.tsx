@@ -1,35 +1,31 @@
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { actGetCategories } from '@store/categories/categoriesSlice';
+import { Loading } from '@components/feedback';
+import { GridList } from '@components/common';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Category } from '@components/eCommerce';
 
 const Categories = () => {
+  const dispatch = useAppDispatch();
+  const { loading, records, error } = useAppSelector(
+    (state) => state.categories
+  );
+
+  useEffect(() => {
+    if (!records.length) {
+      dispatch(actGetCategories());
+    }
+  }, [dispatch, records]);
+
   return (
     <Container>
-      <Row>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Category />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Category />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Category />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Category />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Category />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Category />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Category />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Category />
-        </Col>
-      </Row>
+      <Loading status={loading} error={error}>
+        <GridList
+          records={records}
+          renderItem={(record) => <Category {...record} />}
+        />
+      </Loading>
     </Container>
   );
 };

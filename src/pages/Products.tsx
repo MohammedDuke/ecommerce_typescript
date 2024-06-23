@@ -1,25 +1,44 @@
-import { Container, Row, Col } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import {
+  actGetProductsByCatPrefix,
+  productsCleanUp,
+} from '@store/products/productsSlice';
+import { Loading } from '@components/feedback';
+
+import { useEffect } from 'react';
+
+import { Container } from 'react-bootstrap';
 import { Product } from '@components/eCommerce';
+import { GridList } from '@components/common';
 const Products = () => {
+  const params = useParams();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    let prefix: string;
+
+    if (params.prefix && typeof params.prefix === 'string') {
+      {
+        prefix = params.prefix;
+        dispatch(actGetProductsByCatPrefix(prefix));
+        return () => {
+          dispatch(productsCleanUp());
+        };
+      }
+    }
+  }, [dispatch, params]);
+
+  const { loading, records, error } = useAppSelector((state) => state.products);
+
   return (
     <Container>
-      <Row>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Product />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Product />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Product />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Product />
-        </Col>
-        <Col xs={6} md={3} className="d-flex justify-content-center mb-5 mt-2">
-          <Product />
-        </Col>
-      </Row>
+      <Loading status={loading} error={error}>
+        <GridList
+          records={records}
+          renderItem={(record) => <Product {...record} />}
+        />
+      </Loading>
     </Container>
   );
 };
